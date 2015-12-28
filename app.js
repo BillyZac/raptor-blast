@@ -60,9 +60,25 @@ function getPixel(x, y) {
 }
 
 function drawBigPixel(x, y, color) {
+  // First, erase the spot where the big pixel will go.
+  // We need to do this because the big pixels that are
+  // transparent won't draw over the frilly stuff on the outside of the blast.
+  // Cache the current composite setting
+  var currentGlobalCompositeOperation = ctx.globalCompositeOperation
+  // Draw over the existing work
+  ctx.globalCompositeOperation = 'destination-out'
+  ctx.fillStyle = 'rgba(0, 0, 0, 1)'
+  ctx.beginPath()
+  ctx.rect(x, y, 10, 10)
+  ctx.fill()
+  ctx.closePath()
+  // Reset the composite setting
+  ctx.globalCompositeOperation = currentGlobalCompositeOperation
+
+  // Draw the square
   ctx.fillStyle = color
   ctx.beginPath()
-  ctx.rect(x-5, y-5, 10, 10)
+  ctx.rect(x, y, 10, 10)
   ctx.fill()
   ctx.closePath()
 }
@@ -72,7 +88,6 @@ fs.writeFile('./blast-' + width + 'px-' + height + Date.now() + 'px.png', canvas
 for (var x=0; x<width; x+=10) {
   for (var y=0; y<height; y+=10) {
     var pixel = getPixel(x, y)
-    // console.log(pixel)
     drawBigPixel(x, y,
       'rgba(' +
       pixel.r + ',' +
